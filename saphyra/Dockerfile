@@ -1,71 +1,58 @@
 FROM centos:centos7
-
+SHELL ["/bin/bash", "-c"] 
 # Perform the installation as root:
 USER root
 ENV HOME /home/atlas
 WORKDIR ${HOME}
 
-ARG PYTHON_VERSION_TAG=3.7.2
-ARG LINK_PYTHON_TO_PYTHON3=0
+RUN yum update -y
+RUN python --version
+#RUN yum updade -y
+#RUN yum install -y python27
+RUN yum install -y gcc 
+RUN yum install -y gcc-c++
+RUN yum install -y zlib-devel
+RUN yum install -y openssl-devel
+RUN yum install -y sqlite-devel
+RUN yum install -y make
+RUN yum install -y wget 
+RUN yum install -y git 
+RUN yum install -y which 
+RUN yum install -y tar
+RUN yum install -y sudo 
+RUN yum install -y tree 
+RUN yum install -y epel-release
+RUN yum install -y hdf5-devel
+RUN yum install -y patch 
+RUN yum install -y bzip2-devel 
+RUN yum install -y gdbm-devel 
+RUN yum install -y xz-devel 
+RUN yum install -y ncurses-devel 
+RUN yum install -y readline-devel 
+RUN yum install -y libuuid-devel
+RUN yum install -y libffi-devel
+RUN yum install -y tk-devel
+RUN yum install -y bash-completion
+RUN yum install -y bash-completion-extras
+RUN yum install -y python-pip
+RUN yum install -y boost boost-thread boost-devel boost-python
 
-# epel-release must be installed before some other libraries
-RUN yum upgrade -y -q && \
-    yum install -y \
-        gcc \
-        gcc-c++ \
-        zlib-devel \
-        openssl-devel \
-        sqlite-devel \
-        make \
-        wget \
-        git \
-        which \
-        tar \
-        sudo \
-        tree \
-        epel-release && \
-    yum install -y \
-        jq \
-        hdf5-devel \
-        patch \
-        bzip2-devel \
-        gdbm-devel \
-        xz-devel \
-        ncurses-devel \
-        readline-devel \
-        libuuid-devel \
-        libffi-devel \
-        tk-devel \
-        bash-completion \
-        bash-completion-extras && \
-    yum clean all
+RUN yum install -y git cmake gcc-c++ gcc binutils libX11-devel libXpm-devel libXft-devel libXext-devel
+RUN yum install -y gcc-gfortran openssl-devel pcre-devel \
+mesa-libGL-devel mesa-libGLU-devel glew-devel ftgl-devel mysql-devel \
+fftw-devel cfitsio-devel graphviz-devel \
+avahi-compat-libdns_sd-devel libldap-dev python-devel \
+libxml2-devel gsl-static
 
-ADD install_python.sh ${HOME}/install_python.sh
-RUN bash install_python.sh ${PYTHON_VERSION_TAG} ${LINK_PYTHON_TO_PYTHON3} && \
-    rm -r install_python.sh Python-${PYTHON_VERSION_TAG}
-ADD requirements.txt requirements.txt
-RUN pip3 install --upgrade --no-cache-dir -r requirements.txt && \
-    rm requirements.txt
-# Have Jupyter notebooks launch without additional command line options
-RUN jupyter notebook --generate-config && \
-    sed -i -e "/allow_root/ a c.NotebookApp.allow_root = True" ${HOME}/.jupyter/jupyter_notebook_config.py && \
-    sed -i -e "/custom_display_url/ a c.NotebookApp.custom_display_url = \'http://localhost:8888\'" ${HOME}/.jupyter/jupyter_notebook_config.py && \
-    sed -i -e "/c.NotebookApp.ip/ a c.NotebookApp.ip = '0.0.0.0'" ${HOME}/.jupyter/jupyter_notebook_config.py && \
-    sed -i -e "/open_browser/ a c.NotebookApp.open_browser = False" ${HOME}/.jupyter/jupyter_notebook_config.py
+RUN yum install -y cmake3
+RUN pip install numpy scipy tensorflow keras pandas 
 
-# Add h5ls tab completion
-RUN git clone --depth 1 https://github.com/dguest/_h5ls.git /opt/_h5ls && \
-    echo $'\n# Enable h5ls tab completion\n\
-if [ -f /opt/_h5ls/_h5ls.sh ]; then\n\
-    . /opt/_h5ls/_h5ls.sh\n\
-fi'\
->> ${HOME}/.bashrc
+RUN cd /opt && mkdir root-cern && cd root-cern && git clone https://gitlab.cern.ch/jodafons/root.git && cd root && git checkout v6-16-00-custom && cd .. && \
+mkdir build && cd build && cmake3 ../root && make -j30
 
-# Add alias for vim
-RUN printf "\nalias vim=vi\n" >> ${HOME}/.bashrc
 
-# Make images Grid / Singularity compatible
 RUN mkdir -p /alrb /cvmfs /afs /eos
+
 
 # Set up the ATLAS user, give it super user rights, and give ownership of ${HOME}.
 RUN echo '%wheel  ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers && \
@@ -75,11 +62,28 @@ RUN echo '%wheel  ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers && \
     mkdir ${HOME}/data && \
     chown -R --from=root atlas ${HOME}
 
+# setup root cern
+RUN echo 'source /opt/root-cern/build/bin/thisroot.sh' >> ${HOME}/.bashrc
+RUN echo 'source /opt/root-cern/build/bin/thisroot.sh' >> ${HOME}/.bash_profile
+RUN source /opt/root-cern/build/bin/thisroot.sh
+
 USER atlas
 
-# Start the image not in /root to protect config files
-WORKDIR ${HOME}/data
+ENV ROOTSYS "/opt/root-cern/build/"
+ENV PATH "$ROOTSYS/bin:$PATH"
+ENV LD_LIBRARY_PATH "$ROOTSYS/lib:$LD_LIBRARY_PATH"
+ENV PYTHONPATH "/opt/root-cern/build/lib"
+ENV Athena_SETUP "off"
+ENV CPLUS_INCLUDE_PATH "$CPLUS_INCLUDE_PATH:/usr/include/python2.7/"
+ENV LC_ALL ''
+ENV RCM_NO_COLOR 0
+ENV RCM_GRID_ENV 0
 
-# Start the image with BASH by default
-CMD ["/bin/bash"]
+RUN cd ${HOME}/data && git clone https://gitlab.cern.ch/jodafons/saphyra.git && cd saphyra && \
+ls && bash setup_module.sh && bash setup_module.sh --head && bash setup_standalone.sh && \
+bash buildthis.sh
+
+# Start the image not in /root to protect config files
+WORKDIR ${HOME}/data/saphyra
+
 
