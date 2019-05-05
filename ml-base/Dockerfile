@@ -50,8 +50,7 @@ RUN pip install numpy scipy tensorflow keras pandas
 RUN cd /opt && mkdir root-cern && cd root-cern && git clone https://gitlab.cern.ch/jodafons/root.git && cd root && git checkout v6-16-00-custom && cd .. && \
 mkdir build && cd build && cmake3 ../root && make -j30
 
-
-RUN mkdir -p /alrb /cvmfs /afs /eos
+RUN pip install numpy==1.16.1
 
 
 # Set up the ATLAS user, give it super user rights, and give ownership of ${HOME}.
@@ -59,13 +58,15 @@ RUN echo '%wheel  ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers && \
     adduser atlas && \
     usermod -aG wheel atlas && \
     cp /root/.bash* ${HOME}/ && \
-    mkdir ${HOME}/data && \
     chown -R --from=root atlas ${HOME}
 
 # setup root cern
 RUN echo 'source /opt/root-cern/build/bin/thisroot.sh' >> ${HOME}/.bashrc
 RUN echo 'source /opt/root-cern/build/bin/thisroot.sh' >> ${HOME}/.bash_profile
 RUN source /opt/root-cern/build/bin/thisroot.sh
+
+# Make images Grid / Singularity compatible
+RUN mkdir -p /alrb /cvmfs /afs /eos /grid
 
 USER atlas
 
@@ -79,11 +80,20 @@ ENV LC_ALL ''
 ENV RCM_NO_COLOR 0
 ENV RCM_GRID_ENV 0
 
-RUN cd ${HOME}/data && git clone https://gitlab.cern.ch/jodafons/saphyra.git && cd saphyra && \
-ls && bash setup_module.sh && bash setup_module.sh --head && bash setup_standalone.sh && \
-bash buildthis.sh
+RUN cd ${HOME} && git clone https://gitlab.cern.ch/jodafons/saphyra.git && cd saphyra && ln -sf standalone/CMakeLists.txt CMakeLists.txt && \
+ls -lisa && bash setup_module.sh && bash setup_module.sh --head && bash buildthis.sh
+
+RUN mkdir ${HOME}/data
+RUN ln -sf ${HOME}/saphyra/build/Core/libTuningTools_rdict.pcm ${HOME}/saphyra/build/lib
+RUN ln -sf ${HOME}/saphyra/build/Gaugi/libGaugi_rdict.pcm ${HOME}/saphyra/build/lib
+RUN ln -sf ${HOME}/saphyra/build/libsaphyra.so ${HOME}/saphyra/build/lib
+ENV LD_LIBRARY_PATH  "${HOME}/saphyra/build/lib:$LD_LIBRARY_PATH"
+ENV PYTHONPATH "${HOME}/saphyra/build/lib:$PYTHONPATH"
+ENV PYTHONPATH "${HOME}/saphyra/build/python:$PYTHONPATH"
+ENV PATH "${HOME}/saphyra/build/scripts:$PATH"
+
+
 
 # Start the image not in /root to protect config files
-WORKDIR ${HOME}/data/saphyra
-
-
+WORKDIR ${HOME}/data
+CMD ["/bin/bash"]
