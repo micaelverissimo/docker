@@ -70,21 +70,24 @@ RUN mkdir -p /alrb /cvmfs /afs /eos /grid
 
 USER atlas
 
+ENV Athena_SETUP "off"
+
 ENV ROOTSYS "/opt/root-cern/build/"
+
 ENV PATH "$ROOTSYS/bin:$PATH"
 ENV LD_LIBRARY_PATH "$ROOTSYS/lib:$LD_LIBRARY_PATH"
 ENV PYTHONPATH "/opt/root-cern/build/lib"
-ENV Athena_SETUP "off"
+
 ENV CPLUS_INCLUDE_PATH "$CPLUS_INCLUDE_PATH:/usr/include/python2.7/"
 ENV LC_ALL ''
 ENV RCM_NO_COLOR 0
 ENV RCM_GRID_ENV 0
 
 RUN cd ${HOME} && git clone https://gitlab.cern.ch/jodafons/saphyra.git && cd saphyra && ln -sf standalone/CMakeLists.txt CMakeLists.txt && \
-ls -lisa && bash setup_module.sh && bash setup_module.sh --head && bash buildthis.sh
+ls && bash setup_module.sh && bash setup_module.sh --head && bash buildthis.sh
 
 RUN mkdir ${HOME}/data
-RUN ln -sf ${HOME}/saphyra/build/Core/libTuningTools_rdict.pcm ${HOME}/saphyra/build/lib
+RUN ln -sf ${HOME}/saphyra/build/Core/TuningTools/libTuningTools_rdict.pcm ${HOME}/saphyra/build/lib
 RUN ln -sf ${HOME}/saphyra/build/Gaugi/libGaugi_rdict.pcm ${HOME}/saphyra/build/lib
 RUN ln -sf ${HOME}/saphyra/build/libsaphyra.so ${HOME}/saphyra/build/lib
 ENV LD_LIBRARY_PATH  "${HOME}/saphyra/build/lib:$LD_LIBRARY_PATH"
@@ -92,6 +95,8 @@ ENV PYTHONPATH "${HOME}/saphyra/build/lib:$PYTHONPATH"
 ENV PYTHONPATH "${HOME}/saphyra/build/python:$PYTHONPATH"
 ENV PATH "${HOME}/saphyra/build/scripts:$PATH"
 
+
+RUN python -c "from keras.datasets import cifar10; (x_train, y_train), (x_test, y_test) = cifar10.load_data()"
 
 
 # Start the image not in /root to protect config files
