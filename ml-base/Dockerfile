@@ -45,6 +45,7 @@ avahi-compat-libdns_sd-devel libldap-dev python-devel \
 libxml2-devel gsl-static
 
 RUN yum install -y cmake3
+RUN pip install --upgrade pip 
 RUN pip install numpy scipy tensorflow keras pandas 
 
 RUN cd /opt && mkdir root-cern && cd root-cern && git clone https://gitlab.cern.ch/jodafons/root.git && cd root && git checkout v6-16-00-custom && cd .. && \
@@ -68,6 +69,7 @@ RUN source /opt/root-cern/build/bin/thisroot.sh
 # Make images Grid / Singularity compatible
 RUN mkdir -p /alrb /cvmfs /afs /eos /grid
 
+
 USER atlas
 
 ENV Athena_SETUP "off"
@@ -83,8 +85,8 @@ ENV LC_ALL ''
 ENV RCM_NO_COLOR 0
 ENV RCM_GRID_ENV 0
 
-RUN cd ${HOME} && git clone https://gitlab.cern.ch/jodafons/saphyra.git && cd saphyra && ln -sf standalone/CMakeLists.txt CMakeLists.txt && \
-ls && bash setup_module.sh && bash setup_module.sh --head && bash buildthis.sh
+RUN cd ${HOME} && git clone https://gitlab.cern.ch/jodafons/saphyra.git && cd saphyra && \
+ls -lsiah && bash setup_module.sh && bash setup_module.sh --head && bash buildthis.sh
 
 RUN mkdir ${HOME}/data
 RUN ln -sf ${HOME}/saphyra/build/Core/TuningTools/libTuningTools_rdict.pcm ${HOME}/saphyra/build/lib
