@@ -24,16 +24,23 @@ RUN apt-get install -y git dpkg-dev g++ gcc binutils libx11-dev libxpm-dev libxf
 #    libgsl0-dev libqt4-dev
 
 RUN cd /opt && mkdir root-cern && cd root-cern && git clone https://gitlab.cern.ch/jodafons/root.git && \
-cd root && git checkout v6-16-00-custom && cd .. && mkdir build && cd build && cmake ../root && make -j8
+cd root && git checkout v6-16-00-custom && cd .. && mkdir build && cd build && cmake ../root && make -j30
+RUN echo 'source /opt/root-cern/build/bin/thisroot.sh' >> ${HOME}/.bashrc
+RUN source /opt/root-cern/build/bin/thisroot.sh
 
 
 
 
+RUN pip install --upgrade pip 
+RUN pip install scipy keras pandas 
 
-
+RUN apt-get install -y vim
+RUN git clone https://github.com/amix/vimrc.git ${HOME}/.vim_runtime
+RUN cd ${HOME}/.vim_runtime/ && source install_awesome_vimrc.sh 
 
 
 RUN mkdir -p /alrb /cvmfs /afs /eos /grid
+
 
 
 

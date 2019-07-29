@@ -52,7 +52,7 @@ RUN cd /opt && mkdir root-cern && cd root-cern && git clone https://gitlab.cern.
 mkdir build && cd build && cmake3 ../root && make -j30
 
 RUN pip install numpy==1.16.1
-
+RUN pip install sklearn
 
 # Set up the ATLAS user, give it super user rights, and give ownership of ${HOME}.
 RUN echo '%wheel  ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers && \
@@ -86,7 +86,7 @@ ENV RCM_NO_COLOR 0
 ENV RCM_GRID_ENV 0
 
 RUN cd ${HOME} && git clone https://gitlab.cern.ch/jodafons/saphyra.git && cd saphyra && \
-ls -lsiah && bash setup_module.sh && bash setup_module.sh --head && bash buildthis.sh
+ls -lisah  && bash setup_module.sh && bash setup_module.sh --head && bash buildthis.sh
 
 RUN mkdir ${HOME}/data
 RUN ln -sf ${HOME}/saphyra/build/Core/TuningTools/libTuningTools_rdict.pcm ${HOME}/saphyra/build/lib
@@ -99,7 +99,7 @@ ENV PATH "${HOME}/saphyra/build/scripts:$PATH"
 
 
 RUN python -c "from keras.datasets import cifar10; (x_train, y_train), (x_test, y_test) = cifar10.load_data()"
-
+ADD saphyra_pull.sh ${HOME}/data
 
 # Start the image not in /root to protect config files
 WORKDIR ${HOME}/data
