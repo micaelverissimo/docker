@@ -1,4 +1,4 @@
-FROM tensorflow/tensorflow:2.0.0b1-gpu
+FROM tensorflow/tensorflow:1.14.0-gpu 
 
 # Perform the installation as root:
 USER root
