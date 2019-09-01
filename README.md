@@ -1,4 +1,4 @@
-## docker images repository
+# docker images repository
 
 Use this repository to build your docker image and use this into the 
 LCG grid CERN. You must have an docker hub account and your image must
@@ -6,9 +6,9 @@ be public. Follow the procedures below to build and push your image
 to your public docker repository.
 
 
-## ml-base (machine learning base image)
+## gpu-base (machine learning base image from tensorflow)
 
-This image uses the CentOS 7 as base and included the follow packages
+This image uses the Ubuntu (tensorflow) as base and included the follow packages
 current installed:
 
 - root (cern project)
@@ -19,27 +19,47 @@ current installed:
 - saphyra (tuning tools repository)
 
 
-## How to build the image
+### How to build the image
 
 ```bash
 # build the docker image
-docker build --network host --compress -t ${USER}/ml-base .
+source buildthis.sh
 ```
 
-## How to run as bash
+### How to run as bash
 
 ```bash
 # run the docker image
-docker run -i -t -v $HOME:$HOME ${USER}/ml-base /bin/bash
+source runthis.sh
 ```
 
-## How to push to your public repository
+### How to push to your public repository
 
 You must login before push your image into the docker repository.
 ```bash
 # push
-docker push ${USER}/ml-base
+docker push ${USER}/gpu-base
 ```
+
+
+### How to test on LCG grid with GPU
+
+setup_envs.sh is mandatory becouse of singularity envs overriding.
+
+```bash
+prun \
+     --exec \
+       "sh -c '. /setup_envs.sh && python /test-gpu.py';" \
+     --excludedSite=ANALY_DESY-HH_UCORE,ANALY_MWT2_SL6,ANALY_MWT2_HIMEM,ANALY_DESY-HH,ANALY_FZK_UCORE,ANALY_FZU,DESY-HH_UCORE,FZK-LCG2_UCORE \
+     --containerImage=docker://jodafons/gpu-base:latest \
+     --excludeFile="*.o,*.so,*.a,*.gch,Download/*,InstallArea/*,RootCoreBin/*,RootCore/*,*new_env_file.sh," \
+     --noBuild \
+     --outDS=user.jodafons.test_1 \
+     --site=ANALY_MANC_GPU_TEST \
+     --cmtConfig nvidia-gpu \
+     --disableAutoRetry \
+```
+
 
 ## How to install docker (CentOS 7)
 
