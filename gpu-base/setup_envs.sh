@@ -17,6 +17,8 @@ export PYTHONPATH="/opt/root_cern/build/lib:$PYTHONPATH"
 
 cd /code/saphyra/
 
+git pull
+
 # Set saphyra by hand
 cd build
 rm -rf lib

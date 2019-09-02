@@ -5,7 +5,7 @@ prun \
      --containerImage=docker://jodafons/gpu-base:latest \
      --excludeFile="*.o,*.so,*.a,*.gch,Download/*,InstallArea/*,RootCoreBin/*,RootCore/*,*new_env_file.sh," \
      --noBuild \
-     --outDS=user.jodafons.test_23 \
+     --outDS=user.jodafons.test_24 \
      --site=ANALY_MANC_GPU_TEST \
      --cmtConfig nvidia-gpu \
      --disableAutoRetry \
