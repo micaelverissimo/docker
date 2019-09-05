@@ -43,7 +43,7 @@ RUN pip install sklearn keras
 # Make images Grid / Singularity compatible
 RUN mkdir -p /alrb /cvmfs /afs /eos /code /data
 
-
+RUN ls
 ENV Athena_SETUP "off"
 ENV RCM_NO_COLOR 0
 ENV RCM_GRID_ENV 0
