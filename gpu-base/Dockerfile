@@ -39,17 +39,16 @@ RUN . /opt/root_cern/build/bin/thisroot.sh
 # Remove this! 700 MB
 RUN rm -rf /opt/root_cern/root/.git
 #RUN rm -rf /opt/root_cern/root 
-RUN ls
+RUN ls -lisah
 
 
-RUN pip3 install sklearn keras sqlalchemy numpy
+RUN pip3 install sklearn keras sqlalchemy numpy kubernetes psycopg2-binary benedict
 
 
 # Make images Grid / Singularity compatible
 RUN mkdir -p /alrb /cvmfs /afs /eos /code /data
 
 
-RUN ls
 ENV Athena_SETUP "off"
 ENV RCM_NO_COLOR 0
 ENV RCM_GRID_ENV 0
@@ -58,7 +57,7 @@ ENV PATH "$ROOTSYS/bin:$PATH"
 ENV LD_LIBRARY_PATH "$ROOTSYS/lib:$LD_LIBRARY_PATH"
 ENV PYTHONPATH "/opt/root_cern/build/lib:$PYTHONPATH"
 RUN cd /code && git clone https://github.com/jodafons/saphyra.git && cd saphyra && \
-ls -ls  && bash setup_module.sh && bash setup_module.sh --head && git pull && bash buildthis.sh
+ls -lisah  && bash setup_module.sh && bash setup_module.sh --head && git pull && bash buildthis.sh
 
 
 
