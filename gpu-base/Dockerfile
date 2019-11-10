@@ -54,7 +54,7 @@ ENV PATH "$ROOTSYS/bin:$PATH"
 ENV LD_LIBRARY_PATH "$ROOTSYS/lib:$LD_LIBRARY_PATH"
 ENV PYTHONPATH "/opt/root_cern/build/lib:$PYTHONPATH"
 RUN cd /code && git clone https://github.com/jodafons/saphyra.git && cd saphyra && \
-ls -lisah  && bash setup_module.sh && bash setup_module.sh --head && git pull
+ls  && bash setup_module.sh && bash setup_module.sh --head && git pull
 
 
 
