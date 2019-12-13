@@ -44,7 +44,7 @@ export PATH=`pwd`/scripts:$PATH
 cd $CURRENT_DIR
 
 
-python3 /code/orchestra/orchestra/scripts/run_sdumont.py -q $ORCHESTRA_QUEUE -s $ORCHESTRA_TIME
+python3 /code/orchestra/orchestra/scripts/run_sdumont.py -q $ORCHESTRA_QUEUE
 
 
 
