@@ -1,4 +1,5 @@
-#docker run --gpus all --network host -v jodafons:/volume -it jodafons/tensorflow /bin/bash
-#docker run -u $(id -u):$(id -g) --network host -v jodafons:/volume -it jodafons/saphyra /bin/bash
-#docker run --user `id -u` --network host -v jodafons:/volume -it jodafons/saphyra /bin/bash
-docker run --network host -v jodafons:/volume -it jodafons/saphyra /bin/bash
+
+# -it: interactive section with the tty..
+# --network: connect a container to a network.
+# -v: volume.
+docker run --network host -v $RINGER_VOLUME:/volume -it jodafons/saphyra /bin/bash
