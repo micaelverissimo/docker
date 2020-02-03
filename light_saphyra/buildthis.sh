@@ -1,1 +1,1 @@
-docker build --network host --compress  -t mverissi/light_saphyra .
+docker build --network host --compress -t mverissi/light_saphyra .
