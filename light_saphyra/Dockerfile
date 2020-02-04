@@ -3,14 +3,11 @@ FROM tensorflow/tensorflow:latest-gpu-py3
 USER root
 SHELL [ "/bin/bash", "-c" ]
 RUN ls -lsiah
-RUN apt-get update
-RUN apt-get install wget
-RUN wget https://cmake.org/files/v3.8/cmake-3.8.2-Linux-x86_64.sh -P /usr/
-RUN chmod 755 /usr/cmake-3.8.2-Linux-x86_64.sh
-RUN cd /usr && ./cmake-3.8.2-Linux-x86_64.sh --skip-license
-RUN cmake --version
 
+RUN apt-get install -y git
+RUN pip install --upgrade pip
 RUN pip3 install sklearn keras sqlalchemy numpy kubernetes psycopg2-binary benedict flask-login 
+
 
 # get the saphyra repository
 RUN mkdir -p /code
