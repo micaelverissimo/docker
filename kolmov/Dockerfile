@@ -12,10 +12,10 @@ RUN pip install -U sklearn
 RUN pip install -U numpy 
 RUN pip install -U pandas 
 RUN pip install -U jupyter
+RUN pip install -U Gaugi
 
 # get the kolmov repository
 RUN mkdir -p /code
-RUN cd /code && git clone https://github.com/micaelverissimo/kolmov.git && cd kolmov \
-&& ls  && bash setup_modules.sh && bash setup_modules.sh --head && git pull
+RUN cd /code && git clone https://github.com/micaelverissimo/kolmov.git && cd kolmov && git pull
 
 COPY setup_envs.sh /
