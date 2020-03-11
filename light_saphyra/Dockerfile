@@ -7,7 +7,7 @@ RUN ls -lsiah
 RUN apt-get install -y git
 RUN pip install --upgrade pip
 RUN pip3 install sklearn keras sqlalchemy numpy kubernetes psycopg2-binary benedict flask-login 
-
+RUN pip3 install Gaugi
 
 # get the saphyra repository
 RUN mkdir -p /code
